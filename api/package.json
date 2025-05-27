@@ -1,0 +1,25 @@
+{
+  "name": "assignments-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV=test jest",
+    "start": "node server.js"
+  },
+  "author": "Sam Orgill",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.13.23",
+    "multer": "^1.4.2"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^30.0.0-beta.3",
+    "supertest": "^7.1.1"
+  }
+}
