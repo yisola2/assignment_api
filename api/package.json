@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "build": "npm ci",
     "test": "cross-env NODE_ENV=test jest",
     "start": "node server.js"
   },
