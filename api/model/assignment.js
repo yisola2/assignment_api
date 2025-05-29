@@ -5,7 +5,7 @@ let AssignmentSchema = Schema({
     //a changer in english
     id: Number,
     name: String,
-    dueDate: String,
+    dueDate: Date,
     submitted: String,
     auteur: {
         nom: String,
