@@ -1,24 +1,64 @@
 let Assignment = require('../model/assignment');
 const mongoose = require('mongoose');
 
-
+// GET /api/assignments avec pagination
 function getAssignmentsWithPagination(req, res) { 
+    // Paramètres de pagination depuis l'URL
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const sort = req.query.sort || '-dueDate'; // Tri par date décroissante par défaut
+    
+    // Options pour la pagination
     const options = {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10,
+        page: page,
+        limit: limit,
+        sort: { dueDate: -1 }, // Tri par date décroissante
+        customLabels: {
+            totalDocs: 'totalAssignments',
+            docs: 'assignments',
+            limit: 'pageSize',
+            page: 'currentPage',
+            nextPage: 'next',
+            prevPage: 'prev',
+            totalPages: 'pageCount',
+            hasPrevPage: 'hasPrev',
+            hasNextPage: 'hasNext',
+            pagingCounter: 'slNo',
+            meta: 'paginator'
+        }
     };
 
-    Assignment.aggregatePaginate({}, options, (err, result) => {  
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(result);
+    // filters???
+    const aggregate = Assignment.aggregate([
+        // Optionnel : Ajouter des filtres
+        // { $match: { submitted: { $ne: 'Oui' } } }, // Par exemple, seulement les non-soumis
+        
+        // Optionnel : Ajouter des projections
+        {
+            $project: {
+                _id: 1,
+                id: 1,
+                name: 1,
+                dueDate: 1,
+                submitted: 1,
+                auteur: 1,
+                matiere: 1,
+                note: 1,
+                remarques: 1
+            }
         }
+    ]);
+
+    Assignment.aggregatePaginate(aggregate, options, (err, result) => {  
+        if (err) {
+            console.error('Erreur pagination:', err);
+            return res.status(500).json({ error: 'Erreur lors de la récupération des assignments' });
+        }
+        
+        console.log(`[PAGINATION] Page ${result.currentPage}/${result.pageCount} - ${result.assignments.length} assignments`);
+        res.json(result);
     });
 }
-
-
-
 
 // Récupérer tous les assignments (GET)
 function getAssignments(req, res){
@@ -37,7 +77,6 @@ function getAssignments(req, res){
       res.send(processedAssignments);
   });
 }
-
 
 // GET /api/assignments/:id
 async function getAssignment(req, res) {
@@ -69,6 +108,7 @@ function postAssignment(req, res){
     assignment.id = req.body.id;
     assignment.name = req.body.nom || req.body.name; // Support both nom and name
     assignment.dueDate = req.body.dueDate;
+    assignment.postedOn = req.body.postedOn
     assignment.submitted = req.body.submitted;
     assignment.auteur = req.body.auteur; // { nom, photo }
     assignment.matiere = req.body.matiere; // { nom, image, prof: { nom, photo } }
