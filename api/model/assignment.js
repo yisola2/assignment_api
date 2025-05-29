@@ -5,7 +5,17 @@ let AssignmentSchema = Schema({
     //a changer in english
     id: Number,
     name: String,
-    dueDate: Date,
+    dueDate: {
+        type: Date,
+        set: function(value) {
+            // Handle MongoDB date format
+            if (value && typeof value === 'object' && value.$date) {
+                return new Date(value.$date);
+            }
+            // Handle regular date strings/Date objects
+            return value;
+        }
+    },
     submitted: String,
     auteur: {
         nom: String,
