@@ -1,50 +1,63 @@
 const express = require('express');
-const app = express();
+const cors = require('cors');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
 const assignment = require('./routes/assignments');
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
-const mongoose = require('mongoose');
 
+const app = express();
+
+// ------------------------------
+// Connexion à la base MongoDB
+// ------------------------------
 mongoose.Promise = global.Promise;
 
 const uri = 'mongodb+srv://yassyisola:Eg7Pf4e3E95XKVr5@cluster0.o7jvq.mongodb.net/assignmentsDB?retryWrites=true&w=majority&appName=Cluster0';
+
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false
+  useFindAndModify: false // note : obsolète si mongoose >= 6
 };
 
 mongoose.connect(uri, options)
   .then(() => {
-    console.log("Connecté à la base MongoDB assignments dans le cloud !");
-    console.log("at URI = " + uri);
-    console.log("vérifiez with http://localhost:8010/api/assignments que cela fonctionne")
+    console.log("Connexion à MongoDB réussie.");
   })
   .catch(err => {
-    console.log('Erreur de connexion: ', err);
+    console.error("Erreur de connexion à MongoDB :", err);
   });
 
-// CORS middleware
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-API-Token");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  next();
-});
+// ------------------------------
+// Configuration CORS
+// ------------------------------
+app.use(cors({
+  origin: '*', // en développement : peut être remplacé par 'http://localhost:4200'
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'X-API-Token']
+}));
 
-// Body parsers
+// Gestion explicite des requêtes préflight OPTIONS
+app.options('*', cors());
+
+// ------------------------------
+// Middleware de parsing des requêtes
+// ------------------------------
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const port = process.env.PORT || 8010;
+// ------------------------------
+// Définition des routes
+// ------------------------------
 const prefix = '/api';
 
-// Auth routes
+// Routes d'authentification
 app.use(prefix, authRoutes);
 
-// Assignment routes
+// Routes d'assignments
 app.route(prefix + '/assignments')
   .get(assignment.getAssignments)
   .post(authMiddleware, assignment.postAssignment);
@@ -54,9 +67,13 @@ app.route(prefix + '/assignments/:id')
   .put(adminAuth, assignment.updateAssignment)
   .delete(adminAuth, assignment.deleteAssignment);
 
-// Start server
-const server = app.listen(port, "0.0.0.0", () =>
-  console.log(`Serveur démarré sur http://localhost:${port}`)
-);
+// ------------------------------
+// Démarrage du serveur
+// ------------------------------
+const port = process.env.PORT || 8010;
+
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`Serveur backend démarré sur le port ${port}`);
+});
 
 module.exports = { app, server };
