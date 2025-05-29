@@ -22,14 +22,22 @@ function getAssignmentsWithPagination(req, res) {
 
 // Récupérer tous les assignments (GET)
 function getAssignments(req, res){
-    Assignment.find((err, assignments) => {
-        if(err){
-            res.send(err)
-        }
-
-        res.send(assignments);
-    });
+  Assignment.find((err, assignments) => {
+      if(err){
+          res.send(err)
+      }
+      // Convert string dates to proper dates before sending
+      const processedAssignments = assignments.map(a => {
+          if (a.dueDate && typeof a.dueDate === 'string' && a.dueDate.includes('/')) {
+              const [day, month, year] = a.dueDate.split('/');
+              a.dueDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+          }
+          return a;
+      });
+      res.send(processedAssignments);
+  });
 }
+
 
 // GET /api/assignments/:id
 async function getAssignment(req, res) {
@@ -43,6 +51,10 @@ async function getAssignment(req, res) {
       const assignment = await Assignment.findById(id);
       if (!assignment) {
         return res.status(404).json({ message: 'Devoir non trouvé.' });
+      }
+      if (assignment.dueDate && typeof assignment.dueDate === 'string' && assignment.dueDate.includes('/')) {
+        const [day, month, year] = assignment.dueDate.split('/');
+        assignment.dueDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       }
       res.status(200).json(assignment);
     } catch (err) {

@@ -4,7 +4,7 @@ const User = require('../model/User');
 module.exports = async (req, res, next) => {
 
   console.log('[adminAuth.js] Headers reçus:', JSON.stringify(req.headers, null, 2));
-  const authHeader = req.headers['x-api-token'];
+  const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   
   if (!token) {
