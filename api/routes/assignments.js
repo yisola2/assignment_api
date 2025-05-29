@@ -77,16 +77,13 @@ function postAssignment(req, res){
 // Update d'un assignment (PUT)
 // PUT /api/assignments/:id ou PUT /api/assignments (avec _id dans le body)
 async function updateAssignment(req, res) {
-    let id = req.params.id || req.body._id;
-    
+    const id = req.params.id || req.body._id; // Utilise 'id' partout
     if (!id) {
       return res.status(400).json({ message: 'ID manquant.' });
     }
-    
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'ID invalide.' });
     }
-    
     try {
       const updated = await Assignment.findByIdAndUpdate(id, req.body, { new: true });
       if (!updated) {
@@ -101,7 +98,7 @@ async function updateAssignment(req, res) {
   
   // DELETE /api/assignments/:id
   async function deleteAssignment(req, res) {
-    const { id } = req.params;
+    const id = req.params.id; // Utilise 'id' (et non _id)
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'ID invalide.' });
     }
@@ -115,7 +112,7 @@ async function updateAssignment(req, res) {
       console.error(err);
       res.status(500).json({ error: 'Erreur serveur.' });
     }
-  }
+}
   
 
 
