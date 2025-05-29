@@ -27,7 +27,7 @@ let AssignmentSchema = Schema({
             return value;
         }
     },
-    submitted: boolean,
+    submitted: Boolean,
     auteur: {
         nom: String,
         photo: String // URL ou chemin de la photo
