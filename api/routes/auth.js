@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/jwt');
 
 // Inscription
 router.post('/register', async (req, res) => {
@@ -27,10 +28,28 @@ router.post('/login', async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(400).json({ error: 'Mot de passe incorrect' });
 
-    // Générer un token JWT
-    const token = jwt.sign({ userId: user._id, role: user.role }, 'SECRET_KEY', { expiresIn: '1h' });
-    res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
+    // Générer un token JWT avec la clé centralisée
+    const payload = { 
+      userId: user._id, 
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000) // Date de création
+    };
+    
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    
+    console.log('[AUTH] Token généré pour utilisateur:', user.username);
+    console.log('[AUTH] Payload du token:', payload);
+    
+    res.json({ 
+      token, 
+      user: { 
+        id: user._id, 
+        username: user.username, 
+        role: user.role 
+      } 
+    });
   } catch (err) {
+    console.error('[AUTH] Erreur lors de la connexion:', err);
     res.status(500).json({ error: err.message });
   }
 });
