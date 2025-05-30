@@ -64,7 +64,7 @@ app.route(prefix + '/assignments')
 
 app.route(prefix + '/assignments/:id')
   .get(assignment.getAssignment)
-  .put(adminAuth, assignment.updateAssignment)
+  .put(authMiddleware, assignment.updateAssignment)
   .delete(adminAuth, assignment.deleteAssignment);
 
 // ------------------------------

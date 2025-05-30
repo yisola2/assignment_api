@@ -129,25 +129,43 @@ function postAssignment(req, res){
 
 // Update d'un assignment (PUT)
 // PUT /api/assignments/:id ou PUT /api/assignments (avec _id dans le body)
+// Update d'un assignment (PUT)
 async function updateAssignment(req, res) {
-    const id = req.params.id || req.body._id; // Utilise 'id' partout
-    if (!id) {
-      return res.status(400).json({ message: 'ID manquant.' });
-    }
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'ID invalide.' });
-    }
-    try {
-      const updated = await Assignment.findByIdAndUpdate(id, req.body, { new: true });
-      if (!updated) {
-        return res.status(404).json({ message: 'Devoir non trouvé.' });
-      }
-      res.status(200).json({ message: 'Assignment updated successfully', assignment: updated });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Erreur serveur.' });
+  let id = req.params.id || req.body._id;
+  if (!id) {
+    return res.status(400).json({ message: 'ID manquant.' });
+  }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'ID invalide.' });
+  }
+
+  // Récupère le rôle depuis le token (ex: req.user.role)
+  const isAdmin = req.user && req.user.role === 'admin';
+
+  // si not admin peut modifier le field submitted
+  let updateFields;
+  if (isAdmin) {
+    updateFields = req.body;
+  } else {
+    updateFields = {};
+    if (typeof req.body.submitted !== 'undefined') {
+      updateFields.submitted = req.body.submitted;
+    } else {
+      return res.status(403).json({ message: 'Non autorisé à modifier d\'autres champs.' });
     }
   }
+
+  try {
+    const updated = await Assignment.findByIdAndUpdate(id, updateFields, { new: true });
+    if (!updated) {
+      return res.status(404).json({ message: 'Devoir non trouvé.' });
+    }
+    res.status(200).json({ message: 'Assignment updated successfully', assignment: updated });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
   
   // DELETE /api/assignments/:id
   async function deleteAssignment(req, res) {
