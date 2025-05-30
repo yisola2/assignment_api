@@ -60,7 +60,7 @@ app.use(prefix, authRoutes);
 // Routes d'assignments
 app.route(prefix + '/assignments')
   .get(assignment.getAssignmentsWithPagination)
-  .post(authMiddleware, assignment.postAssignment);
+  .post(adminAuth, assignment.postAssignment);
 
 app.route(prefix + '/assignments/:id')
   .get(assignment.getAssignment)
