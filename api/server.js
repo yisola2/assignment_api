@@ -35,7 +35,8 @@ mongoose.connect(uri, options)
 // Configuration CORS
 // ------------------------------
 app.use(cors({
-  origin: '*', // en développement : peut être remplacé par 'http://localhost:4200'
+  origin: true, 
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'X-API-Token']
 }));
