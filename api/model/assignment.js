@@ -17,6 +17,10 @@ let AssignmentSchema = Schema({
             return value;
         }
     },
+    postedOn: {
+        type: Date,
+        default: Date.now
+    },
     submittedOn: {
         type: Date,
         set: function(value) {

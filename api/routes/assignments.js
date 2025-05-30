@@ -40,6 +40,7 @@ function getAssignmentsWithPagination(req, res) {
                 id: 1,
                 name: 1,
                 dueDate: 1,
+                postedOn: 1,
                 submitted: 1,
                 auteur: 1,
                 matiere: 1,
