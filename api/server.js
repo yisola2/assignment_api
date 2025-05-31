@@ -68,6 +68,36 @@ app.route(prefix + '/assignments/:id')
   .put(authMiddleware, assignment.updateAssignment)
   .delete(adminAuth, assignment.deleteAssignment);
 
+  app.post(prefix + '/populate', adminAuth, async (req, res) => {
+    try {
+      const Assignment = require('./model/assignment');
+      const assignments = require('./data.json');
+      
+      console.log('Starting populate process...');
+      
+      // Supprimer les assignments existants
+      console.log('Clearing existing assignments...');
+      await Assignment.deleteMany({});
+      console.log('Database cleared!');
+      
+      // Insérer les nouveaux assignments
+      console.log('Inserting new assignments...');
+      const result = await Assignment.insertMany(assignments);
+      console.log(`${result.length} assignments inserted successfully!`);
+      
+      res.status(200).json({
+        message: 'Base de données repopulée avec succès',
+        count: result.length
+      });
+    } catch (error) {
+      console.error('Erreur lors de la repopulation:', error);
+      res.status(500).json({
+        message: 'Erreur lors de la repopulation de la base de données',
+        error: error.message
+      });
+    }
+  });
+
 // ------------------------------
 // Démarrage du serveur
 // ------------------------------
