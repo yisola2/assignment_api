@@ -139,10 +139,8 @@ async function updateAssignment(req, res) {
     return res.status(400).json({ message: 'ID invalide.' });
   }
 
-  // Récupère le rôle depuis le token (ex: req.user.role)
   const isAdmin = req.user && req.user.role === 'admin';
 
-  // si not admin peut modifier le field submitted
   let updateFields;
   if (isAdmin) {
     updateFields = req.body;
@@ -150,7 +148,11 @@ async function updateAssignment(req, res) {
     updateFields = {};
     if (typeof req.body.submitted !== 'undefined') {
       updateFields.submitted = req.body.submitted;
-    } else {
+    }
+    if (req.body.auteur) {
+      updateFields.auteur = req.body.auteur;
+    }
+    if (Object.keys(updateFields).length === 0) {
       return res.status(403).json({ message: 'Non autorisé à modifier d\'autres champs.' });
     }
   }
