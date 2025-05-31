@@ -141,14 +141,37 @@ async function updateAssignment(req, res) {
 
   const isAdmin = req.user && req.user.role === 'admin';
 
+  // Récupérer l'assignment actuel pour vérifier son statut
+  const currentAssignment = await Assignment.findById(id);
+  if (!currentAssignment) {
+    return res.status(404).json({ message: 'Devoir non trouvé.' });
+  }
+
   let updateFields;
   if (isAdmin) {
     updateFields = {};
     if (req.body.name) updateFields.name = req.body.name;
     if (req.body.dueDate) updateFields.dueDate = req.body.dueDate;
     if (req.body.matiere) updateFields.matiere = req.body.matiere;
-    if (typeof req.body.note !== 'undefined') updateFields.note = req.body.note;
-    if (req.body.remarques) updateFields.remarques = req.body.remarques;
+    
+    
+    if (typeof req.body.note !== 'undefined') {
+      if (!currentAssignment.submitted) {
+        return res.status(400).json({ 
+          message: 'Impossible de noter un devoir qui n\'a pas été rendu.' 
+        });
+      }
+      updateFields.note = req.body.note;
+    }
+    
+    if (req.body.remarques) {
+      if (!currentAssignment.submitted) {
+        return res.status(400).json({ 
+          message: 'Impossible d\'ajouter des remarques à un devoir qui n\'a pas été rendu.' 
+        });
+      }
+      updateFields.remarques = req.body.remarques;
+    }
   } else {
     updateFields = {};
     if (typeof req.body.submitted !== 'undefined') {
