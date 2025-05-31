@@ -3,23 +3,25 @@ let aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 let Schema = mongoose.Schema;
 
 let AssignmentSchema = Schema({
-    //a changer in english
     id: Number,
     name: String,
     dueDate: {
         type: Date,
         set: function(value) {
-            // Handle MongoDB date format
             if (value && typeof value === 'object' && value.$date) {
                 return new Date(value.$date);
             }
-            // Handle regular date strings/Date objects
             return value;
         }
     },
     postedOn: {
         type: Date,
-        default: Date.now
+        set: function(value) {
+            if (value && typeof value === 'object' && value.$date) {
+                return new Date(value.$date);
+            }
+            return value;
+        }
     },
     submittedOn: {
         type: Date,
@@ -27,24 +29,23 @@ let AssignmentSchema = Schema({
             if (value && typeof value === 'object' && value.$date) {
                 return new Date(value.$date);
             }
-            // Handle regular date strings/Date objects
             return value;
         }
     },
     submitted: Boolean,
     auteur: {
         nom: String,
-        photo: String // URL ou chemin de la photo
+        photo: String
     },
     matiere: {
         nom: String,
-        image: String, // URL ou chemin de l'image
+        image: String,
         prof: {
             nom: String,
-            photo: String // URL ou chemin de la photo du prof
+            photo: String
         }
     },
-    note: Number, // sur 20
+    note: Number,
     remarques: String,
 });
 
