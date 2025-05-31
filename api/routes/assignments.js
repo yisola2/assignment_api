@@ -143,7 +143,12 @@ async function updateAssignment(req, res) {
 
   let updateFields;
   if (isAdmin) {
-    updateFields = req.body;
+    updateFields = {};
+    if (req.body.name) updateFields.name = req.body.name;
+    if (req.body.dueDate) updateFields.dueDate = req.body.dueDate;
+    if (req.body.matiere) updateFields.matiere = req.body.matiere;
+    if (typeof req.body.note !== 'undefined') updateFields.note = req.body.note;
+    if (req.body.remarques) updateFields.remarques = req.body.remarques;
   } else {
     updateFields = {};
     if (typeof req.body.submitted !== 'undefined') {
