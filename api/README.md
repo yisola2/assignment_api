@@ -122,5 +122,3 @@ L'API sera accessible sur `http://localhost:8010`
 ## Variables d'environnement
 La connexion MongoDB est configurée directement dans le code avec MongoDB Atlas.
 
-## Déploiement
-Le projet est configuré pour être déployé sur Render.com avec le script `npm run build`.
