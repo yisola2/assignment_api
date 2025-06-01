@@ -47,7 +47,7 @@ Yassin Es Saim - Malik Moussa
 ```bash
 # Cloner le repo
 git clone <https://github.com/yisola2/assignment_api.git>
-cd api
+cd asssignment_api/api
 
 # Installer les dépendances
 npm install
